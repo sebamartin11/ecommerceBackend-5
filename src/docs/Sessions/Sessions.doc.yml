@@ -1,0 +1,190 @@
+paths:
+  /api/sessions/register:
+    post:
+      tags:
+        - Sessions
+      summary: Create new User and Session
+      responses:
+        "201":
+          description: User and Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#components/requestBodies/registerPayload"
+        "400":
+          description: Bad request. User already exist
+        "401":
+          description: Unauthorized. Token expired
+        "500":
+          description: Internal Server Error
+
+  /api/sessions/login:
+    post:
+      tags:
+        - Sessions
+      summary: Log in User and create the Session
+      responses:
+        "200":
+          description: User log in and Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#components/requestBodies/loginPayload"
+        "400":
+          description: Bad request. Wrong email or password
+        "401":
+          description: Unauthorized. Token expired
+        "500":
+          description: Internal Server Error
+
+  /api/sessions/github:
+    get:
+      tags:
+        - Sessions
+      summary: User logued in successfully with Github
+      responses:
+        "200":
+          description: User logued with Github
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/SessionLogsResponse"
+        "401":
+          description: Unauthorized. Token expired
+        "500":
+          description: Internal Server Error
+
+  /api/sessions/github/callback:
+    get:
+      tags:
+        - Sessions
+      summary: User register successfully with Github
+      responses:
+        "200":
+          description: User register successfully with Github
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/SessionLogsResponse"
+        "401":
+          description: Unauthorized. Token expired
+        "500":
+          description: Internal Server Error
+
+  /api/sessions/current:
+    get:
+      tags:
+        - Sessions
+      summary: Get current Session information
+      responses:
+        "200":
+          description: Active Session information
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/SessionResponse"
+        "401":
+          description: Unauthorized. Token expired
+        "500":
+          description: Internal Server Error
+
+  /api/sessions/logout:
+    get:
+      tags:
+        - Sessions
+      summary: Terminate Session and Clear Cookie
+      responses:
+        "200":
+          description: The session was successfully terminated, and the associated cookie was cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/SessionLogsResponse"
+        "401":
+          description: Unauthorized. Token expired
+        "500":
+          description: Internal Server Error
+
+components:
+  schemas:
+  
+    SessionResponse:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: User first name.
+        lastName:
+          type: string
+          description: User last name.
+        fullName:
+          type: string
+          description: User full name name.
+        email:
+          type: string
+          description: User email
+        role:
+          type: string
+          description: User role [user-admin-premium]
+      example:
+        firstName: John
+        lastName: Dou
+        fullName: John Dou
+        email: johnDou@gmail.com
+        role: user
+
+    SessionLogsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, error]
+          description: |
+            - Log In successfully
+            - Log Out successfully
+
+  requestBodies:
+    loginPayload:
+      type: object
+      properties:
+        email:
+          type: string
+          description: User's email. Required
+        password:
+          type: string
+          description: User's password. Required
+      example:
+        email: test@gmail.com
+        password: wkj123lkmdwwe
+
+    registerPayload:
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: User first name. Required
+        last_name:
+          type: string
+          description: User last name. Required
+        email:
+          type: string
+          description: User email (unique field). Required
+        age:
+          type: number
+          description: User age. Required
+        password:
+          type: string
+          description: User hashed password. Required
+        profile_image:
+          type: string
+          description: User profile image.
+          default: default.jpg
+      example:
+        first_name: John
+        last_name: Dou
+        email: johnDou@gmail.com
+        age: 29
+        password: skldnvlkn$#bdf$%1245@^7*432
+
+
+

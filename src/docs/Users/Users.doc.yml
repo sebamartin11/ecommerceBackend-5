@@ -1,0 +1,485 @@
+paths:
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      responses:
+        "200":
+          description: Successfully fetched all users from the database
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UsersResponse"
+        "401":
+          description: Unauthorized. Token expired
+        "403":
+          description: Forbidden. Invalid credentials
+        "500":
+          description: Internal Server Error
+
+    post:
+      tags:
+        - Users
+      summary: Create new user and generate a session cookie
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UsersResponse"
+        "400":
+          description: |
+            - Bad request. Missing required parameters to create a new user
+            - Bad request. User already exists in the DB
+        "401":
+          description: Unauthorized. Token expired
+        "500":
+          description: Internal Server Error
+
+    delete:
+      tags:
+        - Users
+      summary: Delete all the users that were inactive in the last 2 days, except for users with the 'Admin' role. Additionally, if a user has been inactive for 2 days, an email notification will be sent to inform them that they have one hour to log back in. If they fail to do so, their user account will be deleted. 
+      responses:
+        "200":
+          description: Users deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UsersResponse"
+        "401":
+          description: Unauthorized. Token expired
+        "403":
+          description: Forbidden. Invalid credentials
+        "500":
+          description: Internal Server Error
+
+  /api/users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get a single user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID to fetch
+          schema:
+            $type: string
+      responses:
+        "200":
+          description: Successfully retrieved user with the specified userId
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UserResponse"
+        "400":
+          description: Bad request. Must provide a valid ID
+        "401":
+          description: Unauthorized. Token expired
+        "404":
+          description: Not found. User with the given userId not found
+        "500":
+          description: Internal Server Error
+
+    put:
+      tags:
+        - Users
+      summary: Update user properties by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID to fetch
+          schema:
+            $type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/requestBodies/UpdateUserPayload"
+      responses:
+        "200":
+          description: User with the provided user ID has been successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UserResponse"
+        "400":
+          description: |
+            - Bad request. Invalid body format or missing data from user
+            - Bad request. Must provide a valid ID
+        "401":
+          description: Unauthorized. Token expired
+        "403":
+          description: Forbidden. Invalid credentials
+        "404":
+          description: Not found. User with the given userId not found
+        "500":
+          description: Internal Server Error
+
+    delete:
+      tags:
+        - Users
+      summary: Delete single user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID to fetch
+          schema:
+            $type: string
+      responses:
+        "200":
+          description: User with the provided user ID has been successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UsersResponse"
+        "400":
+          description: Bad request. Invalid body format or missing data from user
+        "401":
+          description: Unauthorized. Token expired
+        "403":
+          description: Forbidden. Invalid credentials
+        "404":
+          description: Not found. User with the given userId not found
+        "500":
+          description: Internal Server Error
+
+  /api/users/{userId}/documents:
+    post:
+      tags:
+        - Users
+      summary: Upload documents for a user by ID and change update_status attributte
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID to fetch
+          schema:
+            $type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/requestBodies/UploadDocumentsPayload"       
+      responses:
+        "200":
+          description: Uploaded documents and updated the status for the user with the specified userId
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UsersResponse"
+        "400":
+          description: |
+            - Bad request. Missing documents
+            - Bad request. Must provide a valid ID
+        "401":
+          description: Unauthorized. Token expired
+        "403":
+          description: Forbidden. Invalid credentials
+        "404":
+          description: Not found. User with the given userId not found
+        "500":
+          description: Internal Server Error
+
+
+  /api/users/premium/{userId}:
+    put:
+      tags:
+        - Users
+      summary: Update user role to 'premium' if all required documentation is uploaded
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: User ID to fetch
+          schema:
+            $type: string
+      responses:
+        "200":
+          description: Successfully updated the role of the user with the specified userId
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UsersResponse"
+        "400":
+          description: |
+            - Bad request. Must provide a valid ID 
+            - Bad request. User has not finished processing their documentation
+        "401":
+          description: Unauthorized. Token expired
+        "403":
+          description: Forbidden. Invalid credentials
+        "404":
+          description: Not found. User with the given userId not found
+        "500":
+          description: Internal Server Error
+
+  /api/users/resetPassword:
+    post:
+      tags:
+        - Users
+      summary: Request a password reset link via email
+      responses:
+        "200":
+          description: Successfully sent an email with a password reset link
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UserEmailResponse"
+        "404":
+          description: Not found. User with the given email not found
+        "500":
+          description: Internal Server Error
+
+  /api/users/createPassword:
+    put:
+      tags:
+        - Users
+      summary: Create a new password for an existing user
+      responses:
+        "200":
+          description: New password created
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UsersResponse"
+        "400":
+          description: |
+            - Bad request. Invalid token
+            - Bad request. Invalid password
+        "401":
+          description: Unauthorized. Token expired
+        "404":
+          description: Not found. User with the given email not found
+        "498":
+          description: Invalid Token
+        "500":
+          description: Internal Server Error
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Autogenerated MongoDB Id
+        first_name:
+          type: string
+          description: User first name. Required
+        last_name:
+          type: string
+          description: User last name. Required
+        email:
+          type: string
+          description: User email (unique field). Required
+        age:
+          type: number
+          description: User age. Required
+        password:
+          type: string
+          description: User hashed password. Required
+        profile_image:
+          type: string
+          description: User profile image.
+          default: default.jpg
+        github_username:
+          type: string
+          description: User GitHub username (unique field)
+        role:
+          type: string
+          description: User role [user-admin-premium]
+        cart:
+          type: ObjectId
+          description: Cart autogenerated MongoDB Id reference
+        documents:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Document name
+              reference:
+                type: string
+                description: Document reference
+              docType:
+                type: string
+                enum: ["id_document", "proof_of_address", "account_status"]
+        last_connection:
+          type: string
+          format: date-time
+          description: User last connection. Default value is now
+        update_status:
+          type: boolean
+          description: User status for having updated documents. Default value is 'false'
+      example:
+        _id: ObjectId(123abc456efg)
+        first_name: John
+        last_name: Dou
+        email: johnDou@gmail.com
+        age: 29
+        password: skldnvlkn$#bdf$%1245@^7*432
+        github_username: JohnDou
+        role: user
+        cart: ObjectId(789hij101112klm)
+        documents:
+          - name: ""
+            reference: "ABC123"
+            docType: "id_document"
+          - name: ""
+            reference: "DEF456"
+            docType: "proof_of_address"
+          - name: ""
+            reference: "GHI789"
+            docType: "account_status"
+        last_connection: "2023-06-05T12:00:00Z"
+        update_status: false
+
+    UsersResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, error]
+          description: User response status
+        payload:
+          type: array
+          description: Users array list
+          items:
+            $ref: "#components/schemas/User"
+
+    UserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, error]
+          description: User response status
+        user:
+          $ref: "#components/schemas/User"
+
+    UserEmailResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, error]
+          description: Email response status
+
+  requestBodies:
+    UpdateUserPayload:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Autogenerated MongoDB Id
+        first_name:
+          type: string
+          description: User first name. Required
+        last_name:
+          type: string
+          description: User last name. Required
+        email:
+          type: string
+          description: User email (unique field). Required
+        age:
+          type: number
+          description: User age. Required
+        password:
+          type: string
+          description: User hashed password. Required
+        profile_image:
+          type: string
+          description: User profile image
+        github_username:
+          type: string
+          description: User GitHub username (unique field)
+        role:
+          type: string
+          description: User role [user-admin-premium]
+        cart:
+          type: ObjectId
+          description: Cart autogenerated MongoDB Id reference
+        documents:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Document name
+              reference:
+                type: string
+                description: Document reference
+              docType: 
+                type: string
+                enum: ["id_document", "proof_of_address", "account_status"]
+        last_connection:
+          type: string
+          format: date-time
+          description: User last connection. Default value is now
+        update_status:
+          type: boolean
+          description: User status for having updated documents. Default value is 'false'
+      example:
+        _id: ObjectId(123abc456efg)
+        first_name: John
+        last_name: Dou
+        email: johnDou@gmail.com
+        age: 29
+        password: skldnvlkn$#bdf$%1245@^7*432
+        github_username: JohnDou
+        role: user
+        cart: ObjectId(789hij101112klm)
+        documents:
+          - name: "Id Document"
+            reference: "ABC123"
+            docType: "id_document"
+          - name: "Proof of Address"
+            reference: "DEF456"
+            docType: "proof_of_address"
+          - name: "Account Status"
+            reference: "GHI789"
+            docType: "account_status"
+        last_connection: "2023-06-05T12:00:00Z"
+        update_status: true
+
+    UploadDocumentsPayload:
+      type: object
+      properties:
+        documents:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Document name
+              reference:
+                type: string
+                description: Document reference
+              docType:
+                type: string
+                enum: ["id_document", "proof_of_address", "account_status"]
+        update_status:
+          type: boolean
+          description: User status for having updated documents. Default value is 'false'
+      example:
+        documents:
+          - name: "Id Document"
+            reference: "ABC123"
+            docType: "id_document"
+          - name: "Proof of Address"
+            reference: "DEF456"
+            docType: "proof_of_address"
+          - name: "Account Status"
+            reference: "GHI789"
+            docType: "account_status"
+        update_status: true

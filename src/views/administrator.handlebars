@@ -1,0 +1,110 @@
+<div class="login-body">
+  <h1 class="mb-3 fw-normal">Admin view</h1>
+  <h4 class="mb-5 fw-normal">This page allows you to view, modify the role, and
+    delete a specific User</h4>
+
+  <div class="form-signin w-100 m-auto card card-box mb-5">
+    <h6 class="mt-1 mb-4">Look for a specific User by ID</h6>
+
+    <form id="userById-form" enctype="multipart/form-data">
+      <div class="form-floating mb-2">
+        <input
+          name="userIdInput"
+          id="userIdInput"
+          type="text"
+          class="form-control"
+          placeholder="User ID"
+          required
+        />
+        <label>User ID</label>
+      </div>
+
+      <button
+        class="w-50 mt-3 btn btn-sm btn-primary"
+        type="submit"
+      >Submit</button>
+
+      <button
+        class="w-50 mt-3 btn btn-sm btn-secondary"
+        type="button"
+        onclick="clearForm('userById-form')"
+      >Clear</button>
+
+    </form>
+  </div>
+
+  <div class="form-signin w-100 m-auto card card-box mb-5">
+    <h6 class="mt-1 mb-4">Modify the role of a User by ID</h6>
+
+    <form id="changeRole-form">
+      <div class="form-floating mb-2">
+        <input
+          name="userIdRole"
+          id="userIdRole"
+          type="text"
+          class="form-control"
+          placeholder="User ID"
+          required
+        />
+        <label>User ID</label>
+      </div>
+
+      <select
+        id="selectedRole"
+        class="form-select form-select-sm text-center"
+        aria-label="Default select example"
+      >
+        <option selected>Select</option>
+        <option value="user">user</option>
+        <option value="premium">premium</option>
+        <option value="admin">admin</option>
+      </select>
+
+      <button
+        class="w-50 mt-3 btn btn-sm btn-warning"
+        type="submit"
+      >Submit</button>
+
+      <button
+        class="w-50 mt-3 btn btn-sm btn-secondary"
+        type="button"
+        onclick="clearForm('changeRole-form')"
+      >Clear</button>
+
+    </form>
+  </div>
+
+  <div class="form-signin w-100 m-auto card card-box mb-5">
+    <h6 class="mt-1 mb-4">Delete a user by ID</h6>
+
+    <form id="deleteUser-form" enctype="multipart/form-data">
+      <div class="form-floating mb-2">
+        <input
+          name="userIdDeleteInput"
+          id="userIdDeleteInput"
+          type="text"
+          class="form-control"
+          placeholder="User ID"
+          required
+        />
+        <label>User ID</label>
+      </div>
+
+      <button
+        class="w-50 mt-3 btn btn-sm btn-danger"
+        type="submit"
+        onclick="deleteUser(event)"
+      >Delete</button>
+
+      <button
+        class="w-50 mt-3 btn btn-sm btn-secondary"
+        type="button"
+      >Clear</button>
+
+    </form>
+  </div>
+
+</div>
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/static/js/administrator.js"></script>
